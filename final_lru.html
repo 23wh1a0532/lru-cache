@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRU Cache Visual Tutor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff7eb3; /* Baby pink */
+            --primary-dark: #ff4d94;
+            --secondary: #85d3ff; /* Light blue accent */
+            --secondary-dark: #5cb8ff;
+            --danger: #ff6b6b;
+            --light: #ffffff;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #6c757d;
+            --dark: #343a40;
+            --mru-color: #ff9ec5; /* Lighter pink */
+            --lru-color: #85d3ff; /* Light blue */
+            --regular-color: #ffcce0; /* Very light pink */
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fff5f7 0%, #fef9ff 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #ff7eb3, #85d3ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .tagline {
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* MAIN LAYOUT */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* STEPS PANEL */
+        .steps-panel {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 25px;
+            border: 1px solid var(--medium-gray);
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .steps-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .step-card {
+            background: var(--light-gray);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .step-card.active {
+            border-color: var(--primary);
+            background: rgba(255, 126, 179, 0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(255, 126, 179, 0.15);
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: 600;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .step-desc {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        /* CONTROLS PANEL */
+        .controls-panel {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 25px;
+            border: 1px solid var(--medium-gray);
+            box-shadow: var(--shadow);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title i {
+            color: var(--primary);
+        }
+
+        /* CONTROL GROUPS */
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .control-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-label {
+            margin-bottom: 8px;
+            color: var(--dark-gray);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        input, select {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--medium-gray);
+            background: var(--light);
+            color: var(--dark);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 126, 179, 0.2);
+        }
+
+        /* BUTTONS */
+        .buttons-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .buttons-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .btn {
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffb347, #ff9500);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #ff3838);
+            color: white;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 126, 179, 0.1);
+            color: var(--primary-dark);
+            border: 1px solid rgba(255, 126, 179, 0.3);
+        }
+
+        /* ACTION HISTORY */
+        .history-panel {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 25px;
+            border: 1px solid var(--medium-gray);
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .history-content {
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--medium-gray);
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-time {
+            color: var(--dark-gray);
+            font-size: 0.8rem;
+            min-width: 60px;
+        }
+
+        .history-action {
+            flex: 1;
+            color: var(--dark);
+        }
+
+        /* CACHE VISUALIZATION */
+        .cache-panel {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 25px;
+            border: 1px solid var(--medium-gray);
+            box-shadow: var(--shadow);
+        }
+
+        .cache-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .mru-color { background: var(--mru-color); }
+        .lru-color { background: var(--lru-color); }
+        .regular-color { background: var(--regular-color); }
+
+        /* CACHE VISUALIZATION */
+        .cache-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            min-height: 250px;
+            padding: 25px;
+            background: var(--light-gray);
+            border-radius: var(--radius);
+            border: 2px dashed rgba(255, 126, 179, 0.3);
+        }
+
+        .cache-item {
+            width: 140px;
+            height: 140px;
+            padding: 15px;
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: var(--transition);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .cache-item.mru {
+            background: linear-gradient(135deg, var(--mru-color), #ff7eb3);
+            color: white;
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .cache-item.lru {
+            background: linear-gradient(135deg, var(--lru-color), #5cb8ff);
+            color: white;
+            transform: scale(0.95);
+            z-index: 1;
+        }
+
+        .cache-item.regular {
+            background: linear-gradient(135deg, var(--regular-color), #ffa8cc);
+            color: var(--dark);
+        }
+
+        .cache-item.empty {
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--dark-gray);
+            border: 2px dashed rgba(255, 126, 179, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cache-key {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-align: center;
+            word-break: break-all;
+            max-width: 100%;
+        }
+
+        .cache-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            word-break: break-all;
+            max-width: 100%;
+        }
+
+        .cache-position {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+
+        /* STATS */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid var(--medium-gray);
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 126, 179, 0.05);
+            border-color: rgba(255, 126, 179, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-dark);
+        }
+
+        .stat-label {
+            color: var(--dark-gray);
+            font-size: 0.85rem;
+        }
+
+        /* EXPLANATION */
+        .explanation {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--medium-gray);
+            margin-top: 20px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        /* ANIMATIONS */
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .slide-in { animation: slideIn 0.3s ease; }
+        .pulse { animation: pulse 0.3s ease; }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--medium-gray);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .control-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .cache-item {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .legend {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h1>LRU Cache Visualizer</h1>
+            </div>
+            <p class="tagline">Visualize the Least Recently Used caching algorithm step by step</p>
+        </header>
+
+        <!-- STEPS GUIDE -->
+        <div class="steps-panel">
+            <div class="panel-title">
+                <i class="fas fa-list-ol"></i>
+                How to Use - Follow These Steps
+            </div>
+            <div class="steps-container">
+                <div class="step-card" id="step1">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Set Cache Size</div>
+                    <div class="step-desc">Choose capacity (1-8)</div>
+                </div>
+                <div class="step-card" id="step2">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Initialize</div>
+                    <div class="step-desc">Click Initialize button</div>
+                </div>
+                <div class="step-card" id="step3">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Add Items</div>
+                    <div class="step-desc">Use PUT to insert data</div>
+                </div>
+                <div class="step-card" id="step4">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Retrieve Items</div>
+                    <div class="step-desc">Use GET to access data</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLS PANEL -->
+        <div class="controls-panel">
+            <div class="panel-title">
+                <i class="fas fa-sliders-h"></i>
+                Cache Controls
+            </div>
+
+            <!-- SETUP ROW -->
+            <div class="control-row">
+                <div class="control-group">
+                    <div class="control-label">Cache Size (1-8)</div>
+                    <input type="number" id="capacity" value="4" min="1" max="8">
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">Key Type</div>
+                    <select id="key-type" onchange="updateInputTypes()">
+                        <option value="number">Number</option>
+                        <option value="string">String</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">Value Type</div>
+                    <select id="value-type" onchange="updateInputTypes()">
+                        <option value="number">Number</option>
+                        <option value="string">String</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">Initialize Cache</div>
+                    <button class="btn btn-primary" onclick="initCache()">
+                        <i class="fas fa-play-circle"></i> Initialize
+                    </button>
+                </div>
+            </div>
+
+            <!-- DATA ROW -->
+            <div class="control-row">
+                <div class="control-group">
+                    <div class="control-label">Key</div>
+                    <input type="text" id="key" placeholder="Enter key">
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">Value</div>
+                    <input type="text" id="value" placeholder="Enter value">
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">Actions</div>
+                    <div class="buttons-row">
+                        <button class="btn btn-success" onclick="put()">
+                            <i class="fas fa-download"></i> PUT
+                        </button>
+                        <button class="btn btn-warning" onclick="get()">
+                            <i class="fas fa-search"></i> GET
+                        </button>
+                        <button class="btn btn-danger" onclick="removeKey()">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                        <button class="btn btn-ghost" onclick="clearCache()">
+                            <i class="fas fa-broom"></i> Clear Cache
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CACHE VISUALIZATION -->
+        <div class="cache-panel">
+            <div class="cache-header">
+                <div class="panel-title">
+                    <i class="fas fa-boxes"></i>
+                    Cache Visualization
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color mru-color"></div>
+                        <span>MRU (Most Recently Used)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color lru-color"></div>
+                        <span>LRU (Least Recently Used)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CACHE ITEMS -->
+            <div id="cache" class="cache-visual">
+                <div class="cache-item empty">
+                    <i class="fas fa-inbox fa-2x"></i>
+                    <p>Cache Empty</p>
+                    <small>Follow steps above to start</small>
+                </div>
+            </div>
+
+            <!-- STATISTICS -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="cache-size">0</div>
+                    <div class="stat-label">Cache Size</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="cache-count">0</div>
+                    <div class="stat-label">Items in Cache</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="hits">0</div>
+                    <div class="stat-label">Cache Hits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="misses">0</div>
+                    <div class="stat-label">Cache Misses</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTION HISTORY -->
+        <div class="history-panel">
+            <div class="history-header">
+                <div class="panel-title">
+                    <i class="fas fa-history"></i>
+                    Action History
+                </div>
+                <div>
+                    <button class="btn btn-ghost" onclick="clearHistory()" style="padding: 8px 15px; font-size: 0.9rem;">
+                        <i class="fas fa-trash"></i> Clear History
+                    </button>
+                    <button class="btn btn-ghost" onclick="resetAll()" style="padding: 8px 15px; font-size: 0.9rem;">
+                        <i class="fas fa-redo"></i> Reset All
+                    </button>
+                </div>
+            </div>
+            <div id="history" class="history-content">
+                <div class="history-item">
+                    <div class="history-time">--:--</div>
+                    <div class="history-action">Application started. Follow the steps above to begin.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPLANATION -->
+        <div id="explanation" class="explanation">
+            <i class="fas fa-info-circle" style="margin-right: 15px; color: var(--primary); font-size: 1.2rem;"></i>
+            <span id="explain">Follow the steps above to start using the LRU Cache Visualizer.</span>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>LRU Cache Visualizer | Track your actions and learn step by step</p>
+        </footer>
+    </div>
+
+    <script>
+        // Cache state
+        let cache = [];
+        let capacity = 0;
+        let cacheHits = 0;
+        let cacheMisses = 0;
+        let isInitialized = false;
+        let actionHistory = [];
+        let currentStep = 0;
+
+        // Update step highlighting
+        function updateSteps() {
+            // Reset all steps
+            document.querySelectorAll('.step-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Highlight current step
+            if (currentStep > 0) {
+                const stepCard = document.getElementById(`step${currentStep}`);
+                if (stepCard) stepCard.classList.add('active');
+            }
+        }
+
+        // Add to history
+        function addHistory(action) {
+            const now = new Date();
+            const time = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            actionHistory.unshift({
+                time: time,
+                action: action,
+                timestamp: now
+            });
+            
+            // Keep only last 20 items
+            if (actionHistory.length > 20) {
+                actionHistory.pop();
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        // Update history display
+        function updateHistoryDisplay() {
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML = '';
+            
+            if (actionHistory.length === 0) {
+                historyDiv.innerHTML = '<div class="history-item">No actions yet</div>';
+                return;
+            }
+            
+            actionHistory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="history-time">${item.time}</div>
+                    <div class="history-action">${item.action}</div>
+                `;
+                historyDiv.appendChild(div);
+            });
+        }
+
+        // Clear history
+        function clearHistory() {
+            actionHistory = [];
+            updateHistoryDisplay();
+            addHistory('History cleared');
+            showExplanation('Action history cleared');
+        }
+
+        // Reset all
+        function resetAll() {
+            cache = [];
+            capacity = 0;
+            cacheHits = 0;
+            cacheMisses = 0;
+            isInitialized = false;
+            actionHistory = [];
+            currentStep = 0;
+            
+            document.getElementById("capacity").value = 4;
+            document.getElementById("key-type").value = "number";
+            document.getElementById("value-type").value = "number";
+            updateInputTypes();
+            
+            document.getElementById("key").value = "";
+            document.getElementById("value").value = "";
+            
+            updateStats();
+            renderCache();
+            updateSteps();
+            updateHistoryDisplay();
+            
+            addHistory('System reset to initial state');
+            showExplanation('System reset. Follow steps to start again.');
+        }
+
+        // Initialize cache
+        function initCache() {
+            capacity = parseInt(document.getElementById("capacity").value);
+            
+            if (capacity < 1 || capacity > 8) {
+                showExplanation("Cache size must be between 1 and 8", "error");
+                return;
+            }
+            
+            cache = [];
+            cacheHits = 0;
+            cacheMisses = 0;
+            isInitialized = true;
+            
+            currentStep = 2; // Move to step 2
+            updateSteps();
+            
+            updateStats();
+            addHistory(`Initialized cache with capacity ${capacity}`);
+            showExplanation(`Cache initialized with capacity ${capacity}. Ready for operations.`);
+            renderCache();
+        }
+
+        // Update input types
+        function updateInputTypes() {
+            const keyType = document.getElementById("key-type").value;
+            const valueType = document.getElementById("value-type").value;
+            
+            const keyInput = document.getElementById("key");
+            const valueInput = document.getElementById("value");
+            
+            keyInput.type = keyType === "number" ? "number" : "text";
+            valueInput.type = valueType === "number" ? "number" : "text";
+            
+            keyInput.placeholder = keyType === "number" ? "Enter number" : "Enter text";
+            valueInput.placeholder = valueType === "number" ? "Enter number" : "Enter text";
+            
+            if (currentStep === 0) {
+                currentStep = 1;
+                updateSteps();
+            }
+        }
+
+        // Parse input
+        function parseInput(value, type) {
+            if (type === "number") {
+                const num = parseFloat(value);
+                return isNaN(num) ? null : num;
+            }
+            return value.trim();
+        }
+
+        // PUT operation
+        function put() {
+            if (!isInitialized) {
+                showExplanation("Please initialize cache first (Step 2)", "error");
+                return;
+            }
+            
+            const keyType = document.getElementById("key-type").value;
+            const valueType = document.getElementById("value-type").value;
+            
+            const key = parseInput(document.getElementById("key").value, keyType);
+            const value = parseInput(document.getElementById("value").value, valueType);
+            
+            if (key === null || key === "" || value === null || value === "") {
+                showExplanation("Please enter both key and value", "error");
+                return;
+            }
+            
+            if (currentStep < 3) {
+                currentStep = 3;
+                updateSteps();
+            }
+            
+            // Check if key exists
+            const keyIndex = cache.findIndex(item => item.key == key);
+            
+            if (keyIndex !== -1) {
+                // Update existing key
+                cache.splice(keyIndex, 1);
+                addHistory(`PUT: Updated "${key}" = "${value}" (moved to MRU)`);
+                showExplanation(`Updated "${key}" = "${value}" and moved to front (MRU)`);
+            } else if (cache.length === capacity) {
+                // Evict LRU
+                const removed = cache.pop();
+                addHistory(`PUT: Added "${key}" = "${value}" (evicted "${removed.key}")`);
+                showExplanation(`Cache full! Evicted "${removed.key}" (LRU) to add "${key}"`);
+            } else {
+                addHistory(`PUT: Added "${key}" = "${value}"`);
+                showExplanation(`Added "${key}" = "${value}" to cache`);
+            }
+            
+            // Add to front (MRU)
+            cache.unshift({ 
+                key: key, 
+                value: value,
+                type: valueType
+            });
+            
+            // Clear inputs
+            document.getElementById("key").value = "";
+            document.getElementById("value").value = "";
+            
+            updateStats();
+            renderCache();
+        }
+
+        // GET operation
+        function get() {
+            if (!isInitialized) {
+                showExplanation("Please initialize cache first (Step 2)", "error");
+                return;
+            }
+            
+            const keyType = document.getElementById("key-type").value;
+            const key = parseInput(document.getElementById("key").value, keyType);
+            
+            if (key === null || key === "") {
+                showExplanation("Please enter key to retrieve", "error");
+                return;
+            }
+            
+            if (currentStep < 4) {
+                currentStep = 4;
+                updateSteps();
+            }
+            
+            // Find key
+            const keyIndex = cache.findIndex(item => item.key == key);
+            
+            if (keyIndex === -1) {
+                // Cache miss
+                cacheMisses++;
+                addHistory(`GET: Miss for key "${key}"`);
+                showExplanation(`"${key}" not found (Cache Miss)`, "error");
+            } else {
+                // Cache hit
+                cacheHits++;
+                const item = cache.splice(keyIndex, 1)[0];
+                cache.unshift(item);
+                addHistory(`GET: Hit for "${key}" = "${item.value}" (moved to MRU)`);
+                showExplanation(`Found "${key}" = "${item.value}" (moved to front as MRU)`);
+            }
+            
+            document.getElementById("key").value = "";
+            
+            updateStats();
+            renderCache();
+        }
+
+        // Remove key
+        function removeKey() {
+            if (!isInitialized) {
+                showExplanation("Please initialize cache first", "error");
+                return;
+            }
+            
+            const keyType = document.getElementById("key-type").value;
+            const key = parseInput(document.getElementById("key").value, keyType);
+            
+            if (key === null || key === "") {
+                showExplanation("Please enter key to remove", "error");
+                return;
+            }
+            
+            const keyIndex = cache.findIndex(item => item.key == key);
+            
+            if (keyIndex === -1) {
+                addHistory(`REMOVE: Key "${key}" not found`);
+                showExplanation(`"${key}" not found in cache`, "error");
+            } else {
+                cache.splice(keyIndex, 1);
+                addHistory(`REMOVE: Key "${key}" removed`);
+                showExplanation(`Removed "${key}" from cache`);
+            }
+            
+            document.getElementById("key").value = "";
+            
+            updateStats();
+            renderCache();
+        }
+
+        // Clear cache
+        function clearCache() {
+            cache = [];
+            addHistory('Cache cleared (all items removed)');
+            showExplanation("Cache cleared. All items removed.");
+            updateStats();
+            renderCache();
+        }
+
+        // Render cache visualization
+        function renderCache() {
+            const cacheContainer = document.getElementById("cache");
+            cacheContainer.innerHTML = "";
+            
+            if (cache.length === 0) {
+                const emptyDiv = document.createElement("div");
+                emptyDiv.className = "cache-item empty";
+                emptyDiv.innerHTML = `
+                    <i class="fas fa-inbox fa-2x" style="margin-bottom: 10px;"></i>
+                    <p>Cache Empty</p>
+                    <small>Use PUT to add items</small>
+                `;
+                cacheContainer.appendChild(emptyDiv);
+                return;
+            }
+            
+            // Create cache items
+            cache.forEach((item, index) => {
+                const cacheItem = document.createElement("div");
+                
+                // Set item type
+                if (index === 0) {
+                    cacheItem.className = "cache-item mru slide-in";
+                } else if (index === cache.length - 1) {
+                    cacheItem.className = "cache-item lru slide-in";
+                } else {
+                    cacheItem.className = "cache-item regular slide-in";
+                }
+                
+                // Position indicator
+                let positionText = index === 0 ? "MRU" : (index === cache.length - 1 ? "LRU" : `${index + 1}`);
+                
+                // Format value display
+                const valueDisplay = typeof item.value === 'string' 
+                    ? `"${item.value}"` 
+                    : item.value;
+                
+                cacheItem.innerHTML = `
+                    <div class="cache-position">${positionText}</div>
+                    <div class="cache-key">${item.key}</div>
+                    <div class="cache-value">${valueDisplay}</div>
+                `;
+                
+                cacheContainer.appendChild(cacheItem);
+            });
+            
+            // Add empty slots
+            if (cache.length < capacity) {
+                for (let i = cache.length; i < capacity; i++) {
+                    const emptySlot = document.createElement("div");
+                    emptySlot.className = "cache-item empty";
+                    emptySlot.innerHTML = `
+                        <i class="fas fa-plus"></i>
+                        <small>Empty Slot</small>
+                    `;
+                    cacheContainer.appendChild(emptySlot);
+                }
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById("cache-size").textContent = capacity;
+            document.getElementById("cache-count").textContent = cache.length;
+            document.getElementById("hits").textContent = cacheHits;
+            document.getElementById("misses").textContent = cacheMisses;
+        }
+
+        // Show explanation
+        function showExplanation(text, type = "info") {
+            const explainDiv = document.getElementById("explain");
+            const explanationDiv = document.getElementById("explanation");
+            
+            // Set text
+            explainDiv.textContent = text;
+            
+            // Update border color based on type
+            explanationDiv.style.borderLeftColor = type === "error" ? "var(--danger)" : "var(--primary)";
+            
+            // Update icon
+            const icon = explanationDiv.querySelector('i');
+            icon.style.color = type === "error" ? "var(--danger)" : "var(--primary)";
+            
+            // Add pulse animation
+            explanationDiv.classList.add("pulse");
+            setTimeout(() => explanationDiv.classList.remove("pulse"), 300);
+        }
+
+        // Initialize on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            updateInputTypes();
+            updateSteps();
+            
+            // Enter key support
+            document.getElementById("key").addEventListener("keyup", function(event) {
+                if (event.key === "Enter") {
+                    document.getElementById("value").focus();
+                }
+            });
+            
+            document.getElementById("value").addEventListener("keyup", function(event) {
+                if (event.key === "Enter") {
+                    put();
+                }
+            });
+            
+            // Add initial history entry
+            addHistory('Application started. Follow the steps above to begin.');
+        });
+    </script>
+</body>
+</html>
